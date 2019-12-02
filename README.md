@@ -1,24 +1,7 @@
 # spell-search
 
-## Project setup
-```
-yarn install
-```
+## Installation
+To install, simply execute **npm install** or **yarn install**.
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Run
+To run, simply execute **npm run serve** or **yarn serve**.

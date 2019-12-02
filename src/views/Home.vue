@@ -18,6 +18,19 @@
           <br>
           <div class="row">
             <div class="col-lg-3">
+              <p class="text-center font-weight-bold">Ecole</p>
+            </div>
+            <div class="col-lg-9">
+              <div v-for="school of schools" class="form-check form-check-inline" v-bind:key="school.id">
+                <input class="form-check-input" type="checkbox" :id="school" :value="school"
+                       v-model="checkedSchools">
+                <label class="form-check-label" :for="school">{{ school | capitalize }}</label>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-lg-3">
               <p class="text-center font-weight-bold">Composantes</p>
             </div>
             <div class="col-lg-9">
@@ -28,7 +41,6 @@
               </div>
             </div>
           </div>
-          <br>
           <div class="row">
             <div class="col-lg-3">
               <p class="text-center font-weight-bold">Nom du sort</p>
@@ -37,6 +49,14 @@
               <div class="form-group">
                 <input class="form-control" type="text" :id="spellName" v-model="spellName">
               </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-3">
+              <p class="text-center font-weight-bold">Description du sort</p>
+            </div>
+            <div class="col-lg-9">
+              <textarea name="description" id="description" class="form-control" v-model="description"></textarea>
             </div>
           </div>
         </form>
@@ -51,19 +71,29 @@
 
     <br>
 
-    <h3 class="text-center" id="similarities">{{ spells.length }} <span v-if="spells.length > 1">correspondances</span><span v-else>correspondance</span></h3>
+    <h3 class="text-center" id="similarities">{{ spells.length }} <span
+        v-if="spells.length > 1">correspondances</span><span v-else>correspondance</span></h3>
 
     <div class="row">
       <div class="col-lg-6">
         <h4 class="text-center">Sorts</h4>
         <hr>
         <div id="spells">
-          <p v-for="spell of spells" v-bind:key="spell.name" @click="showCreatures(spell)" class="spell">
-            {{ spell.name }}
-          </p>
+          <div v-for="spell of spells" v-bind:key="spell.name">
+            <div class="row">
+              <div class="col-lg-9">
+                <p v-on:click="showCreatures(spell)" class="spell" v-bind:class="{ 'text-danger': selectedSpell === spell.name }">
+                  {{ spell.name }}
+                </p>
+              </div>
+              <div class="col-lg-3">
+                <a :href="'https://www.d20pfsrd.com/magic/all-spells/' + spell.name.charAt(0) + '/' + spell.name.replace(' ', '-')" target="_blank">Lien</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="col-lg-6" >
+      <div class="col-lg-6">
         <h4 class="text-center">Créatures pour <span class="font-weight-bold">{{ selectedSpell }}</span></h4>
         <hr>
         <div id="creatures">
@@ -88,42 +118,46 @@
         selectedSpell: "",
         creatures: [],
         spellName: "",
-        checkedClasses: [],
+        resistance: false,
+        description: "",
         classes: ['sorcerer/wizard', 'druid', 'cleric/oracle', 'ranger', 'paladin',
           'alchemist', 'summoner', 'witch', 'inquisitor', 'antipaladin', 'magus',
           'adept', 'bloodrager', 'shaman', 'bard'],
+        checkedClasses: [],
+        schools: ['abjuration', 'conjuration', 'divination', 'enchantment', 'evocation', 'illusion', 'necromancy', 'transmutation'],
+        checkedSchools: [],
         components: ['V', 'S', 'M'],
         checkedComponenents: []
       }
     },
     methods: {
-      reset() {
-        this.creatures = [];
-        this.selectedSpell = '';
-      },
       search() {
-        SpellService.search(this.spellName, this.checkedComponenents, this.checkedClasses).then(res => {
+        SpellService.search(this.spellName, this.checkedSchools, this.checkedComponenents, this.checkedClasses, this.description).then(res => {
           this.spells = res.data.data;
-          this.reset();
+          this.creatures = [];
+          this.selectedSpell = "";
           let container = this.$el.querySelector("#similarities");
-          this.$scrollTo(container, 400);
-
+          this.$scrollTo(container, 500);
         })
       },
       showCreatures(spell) {
-        this.reset();
         this.creatures = this.spells.find(element => element === spell).creatures;
         this.selectedSpell = spell.name;
       },
       clear() {
         this.checkedClasses = [];
         this.checkedComponenents = [];
+        this.checkedSchools = [];
         this.spellName = "";
+        this.description = "";
       }
     },
     filters: {
-      capitalize: function(word) {
+      capitalize: function (word) {
         return word.charAt(0).toUpperCase() + word.slice(1);
+      },
+      firstLetter: function (word) {
+        return word.charAt(0);
       }
     }
   }
@@ -138,6 +172,10 @@
 
   .spell {
     cursor: pointer;
+  }
+
+  .spell:hover {
+    color: rgb(220, 0, 78);
   }
 
   #spells, #creatures {
